@@ -32,7 +32,7 @@ ws.on('message', (msg) => {
       ? "C:\\Python314\\python.exe"
       : "python3";
 
-    shell = pty.spawn(python, ['run.py'], {
+    shell = pty.spawn(python, ['Tiktok_with_cookies_V2.py'], {
       name: 'xterm-color',
       cols: 80,
       rows: 30,
