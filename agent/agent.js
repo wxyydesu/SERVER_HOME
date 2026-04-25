@@ -26,7 +26,13 @@ ws.on('message', (msg) => {
 
     console.log("Starting Python script...");
 
-    shell = pty.spawn('python', ['run.py'], {
+    const path = require("path");
+
+    const python = process.platform === "win32"
+      ? "C:\\Python314\\python.exe"
+      : "python3";
+
+    shell = pty.spawn(python, ['run.py'], {
       name: 'xterm-color',
       cols: 80,
       rows: 30,
