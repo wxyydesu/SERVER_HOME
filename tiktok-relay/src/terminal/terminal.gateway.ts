@@ -3,13 +3,14 @@ import {
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  SubscribeMessage,
+  MessageBody,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 
 import { Server, WebSocket } from 'ws';
 
-@WebSocketGateway({
-  path: '/',
-})
+@WebSocketGateway()
 export class TerminalGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
@@ -21,10 +22,21 @@ export class TerminalGateway
 
   handleConnection(client: WebSocket) {
     console.log('Client connected');
+  }
 
-    client.on('message', (msg: string) => {
-      const data = JSON.parse(msg.toString());
+  handleDisconnect(client: WebSocket) {
+    console.log('Client disconnected');
 
+    if (this.windowsClient === client) this.windowsClient = null;
+    if (this.browserClient === client) this.browserClient = null;
+  }
+
+  @SubscribeMessage('message')
+  handleMessage(
+    @MessageBody() data: any,
+    @ConnectedSocket() client: WebSocket,
+  ) {
+    try {
       if (data.role === 'windows') {
         this.windowsClient = client;
         console.log('Windows connected');
@@ -49,10 +61,8 @@ export class TerminalGateway
       ) {
         this.windowsClient.send(JSON.stringify(data));
       }
-    });
-  }
-
-  handleDisconnect() {
-    console.log('Client disconnected');
+    } catch (e) {
+      console.log('Message error');
+    }
   }
 }
